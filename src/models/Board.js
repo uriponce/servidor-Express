@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const boardSchema = new mongoose.Schema(
   {
@@ -38,4 +38,4 @@ boardSchema.pre('deleteOne', { document: true, query: false }, async function ()
   }
 });
 
-module.exports = mongoose.model('Board', boardSchema);
+export default mongoose.model('Board', boardSchema);

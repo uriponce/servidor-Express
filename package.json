@@ -2,6 +2,7 @@
   "name": "kanban-api",
   "version": "1.0.0",
   "description": "API REST estilo Kanban (Tableros, Columnas, Tickets) con Express y Mongoose",
+  "type": "module",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",

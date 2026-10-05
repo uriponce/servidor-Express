@@ -1,15 +1,15 @@
-const express = require('express');
-const { createColumn, deleteColumn } = require('../controllers/columnController');
-const { validateObjectId } = require('../middlewares/validateObjectId');
-const loadColumn = require('../middlewares/loadColumn');
-const ticketRoutes = require('./ticketRoutes');
+import { Router } from 'express';
+import { createColumn, deleteColumn } from '../controllers/columnController.js';
+import { validateObjectId } from '../middlewares/validateObjectId.js';
+import { parentCheck } from '../middlewares/parentCheck.js';
+import ticketRoutes from './ticketRoutes.js';
 
-const router = express.Router({ mergeParams: true });
+const router = Router({ mergeParams: true });
 
 router.post('/', createColumn);
-router.delete('/:columnId', validateObjectId('columnId'), loadColumn, deleteColumn);
+router.delete('/:columnId', validateObjectId('columnId'), parentCheck('column'), deleteColumn);
 
 // Ruta anidada: todo lo de tickets pasa primero por validar + verificar la columna
-router.use('/:columnId/tickets', validateObjectId('columnId'), loadColumn, ticketRoutes);
+router.use('/:columnId/tickets', validateObjectId('columnId'), parentCheck('column'), ticketRoutes);
 
-module.exports = router;
+export default router;

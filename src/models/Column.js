@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const columnSchema = new mongoose.Schema(
   {
@@ -24,4 +24,4 @@ columnSchema.pre('deleteOne', { document: true, query: false }, async function (
   await mongoose.model('Ticket').deleteMany({ column: this._id });
 });
 
-module.exports = mongoose.model('Column', columnSchema);
+export default mongoose.model('Column', columnSchema);

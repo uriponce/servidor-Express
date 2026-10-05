@@ -1,6 +1,6 @@
-const express = require('express');
-const boardRoutes = require('./routes/boardRoutes');
-const { notFound, errorHandler } = require('./middlewares/errorHandler');
+import express from 'express';
+import boardRoutes from './routes/boardRoutes.js';
+import { notFound, errorHandler } from './middlewares/errorHandler.js';
 
 const app = express();
 
@@ -16,4 +16,4 @@ app.use('/api/boards', boardRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-module.exports = app;
+export default app;

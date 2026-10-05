@@ -1,0 +1,239 @@
+### ============================================================
+###  Kanban API — test.http
+###  Requiere la extensión "REST Client" en VS Code
+###  (humao.rest-client)
+###
+###  FLUJO DE USO:
+###  1. Corre el servidor:  npm run dev
+###  2. Ejecutá cada request en orden con "Send Request"
+###  3. Copiá el _id de la respuesta y pegalo en la variable
+###     correspondiente (@boardId, @columnId, @ticketId)
+### ============================================================
+
+@baseUrl = http://localhost:3000
+@boardId = PEGAR_ID_AQUI
+@columnId = PEGAR_ID_AQUI
+@columnId2 = PEGAR_ID_AQUI
+@ticketId = PEGAR_ID_AQUI
+
+
+# ─────────────────────────────────────────────
+#  HEALTH CHECK
+# ─────────────────────────────────────────────
+
+### [OK] Verificar que el servidor responde
+GET {{baseUrl}}/health
+
+
+# ─────────────────────────────────────────────
+#  FASE 1 — BOARDS
+# ─────────────────────────────────────────────
+
+### [201] Crear tablero válido → copiar _id a @boardId
+POST {{baseUrl}}/api/boards
+Content-Type: application/json
+
+{
+  "title": "Proyecto Web",
+  "description": "Sprint 1 — Kanban"
+}
+
+###
+
+### [400] Crear tablero sin título → ValidationError
+POST {{baseUrl}}/api/boards
+Content-Type: application/json
+
+{
+  "description": "falta el título"
+}
+
+###
+
+### [200] Obtener tablero con columnas populadas
+GET {{baseUrl}}/api/boards/{{boardId}}
+
+###
+
+### [400] Obtener tablero con ID mal formado (< 24 hex)
+GET {{baseUrl}}/api/boards/123abc
+
+###
+
+### [404] Obtener tablero con ID válido pero inexistente
+GET {{baseUrl}}/api/boards/000000000000000000000000
+
+
+# ─────────────────────────────────────────────
+#  FASE 2 — COLUMNS
+# ─────────────────────────────────────────────
+
+### [201] Crear columna "Por hacer" → copiar _id a @columnId
+POST {{baseUrl}}/api/boards/{{boardId}}/columns
+Content-Type: application/json
+
+{
+  "title": "Por hacer"
+}
+
+###
+
+### [201] Crear columna "En progreso" → copiar _id a @columnId2
+POST {{baseUrl}}/api/boards/{{boardId}}/columns
+Content-Type: application/json
+
+{
+  "title": "En progreso"
+}
+
+###
+
+### [400] Crear columna sin título
+POST {{baseUrl}}/api/boards/{{boardId}}/columns
+Content-Type: application/json
+
+{}
+
+###
+
+### [404] Crear columna en tablero inexistente
+POST {{baseUrl}}/api/boards/000000000000000000000000/columns
+Content-Type: application/json
+
+{
+  "title": "Columna huérfana"
+}
+
+###
+
+### [200] Obtener tablero → debe mostrar las columnas populadas
+GET {{baseUrl}}/api/boards/{{boardId}}
+
+
+# ─────────────────────────────────────────────
+#  FASE 3 — TICKETS
+# ─────────────────────────────────────────────
+
+### [201] Crear ticket → copiar _id a @ticketId
+POST {{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets
+Content-Type: application/json
+
+{
+  "title": "Diseñar pantalla de login",
+  "description": "Wireframe aprobado en Figma"
+}
+
+###
+
+### [201] Crear segundo ticket
+POST {{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets
+Content-Type: application/json
+
+{
+  "title": "Configurar pipeline CI/CD"
+}
+
+###
+
+### [400] Crear ticket sin título
+POST {{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets
+Content-Type: application/json
+
+{
+  "description": "descripción sin título"
+}
+
+###
+
+### [404] Crear ticket en columna inexistente
+POST {{baseUrl}}/api/boards/{{boardId}}/columns/000000000000000000000000/tickets
+Content-Type: application/json
+
+{
+  "title": "Ticket huérfano"
+}
+
+
+# ─────────────────────────────────────────────
+#  FASE 4 — PATCH TICKET (actualizar / mover)
+# ─────────────────────────────────────────────
+
+### [200] Actualizar título y descripción
+PATCH {{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets/{{ticketId}}
+Content-Type: application/json
+
+{
+  "title": "Diseñar pantalla de login — revisado",
+  "description": "Incluir modo oscuro"
+}
+
+###
+
+### [200] Mover ticket a columna2 (targetColumnId → campo "column")
+PATCH {{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets/{{ticketId}}
+Content-Type: application/json
+
+{
+  "column": "{{columnId2}}"
+}
+
+###
+
+### [200] Idempotencia: repetir el mismo PATCH → mismo resultado
+PATCH {{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets/{{ticketId}}
+Content-Type: application/json
+
+{
+  "column": "{{columnId2}}"
+}
+
+###
+
+### [400] PATCH sin campos válidos
+PATCH {{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets/{{ticketId}}
+Content-Type: application/json
+
+{}
+
+###
+
+### [400] Mover ticket a columna de OTRO tablero
+PATCH {{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets/{{ticketId}}
+Content-Type: application/json
+
+{
+  "column": "000000000000000000000001"
+}
+
+###
+
+### [400] Ticket ID mal formado
+PATCH {{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets/malformado
+Content-Type: application/json
+
+{
+  "title": "irrelevante"
+}
+
+
+# ─────────────────────────────────────────────
+#  FASE 5 — DELETE COLUMN (cascada de tickets)
+# ─────────────────────────────────────────────
+
+### [204] Eliminar columna → sus tickets desaparecen en cascada
+DELETE {{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}
+
+###
+
+### [404] Eliminar columna ya borrada (o inexistente)
+DELETE {{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}
+
+###
+
+### [400] Eliminar columna con ID inválido
+DELETE {{baseUrl}}/api/boards/{{boardId}}/columns/xyz
+
+###
+
+### [404] Ruta inexistente → notFound middleware
+GET {{baseUrl}}/api/ruta-que-no-existe

@@ -1,11 +1,11 @@
 // Ruta que no existe
-function notFound(req, res) {
+export function notFound(req, res) {
   res.status(404).json({ error: 'Ruta no encontrada' });
 }
 
 // Manejador global: todos los errores terminan acá y salen como { error: "mensaje" }
 // eslint-disable-next-line no-unused-vars
-function errorHandler(err, req, res, next) {
+export function errorHandler(err, req, res, next) {
   // Errores lanzados a propósito (HttpError)
   if (err.status && err.status >= 400 && err.status < 500) {
     return res.status(err.status).json({ error: err.message });
@@ -30,5 +30,3 @@ function errorHandler(err, req, res, next) {
   console.error(err);
   res.status(500).json({ error: 'Error interno del servidor' });
 }
-
-module.exports = { notFound, errorHandler };

@@ -1,12 +1,12 @@
-const Column = require('../models/Column');
-const Ticket = require('../models/Ticket');
-const HttpError = require('../utils/HttpError');
-const asyncHandler = require('../utils/asyncHandler');
-const { isObjectId } = require('../middlewares/validateObjectId');
+import Column from '../models/Column.js';
+import Ticket from '../models/Ticket.js';
+import HttpError from '../utils/HttpError.js';
+import asyncHandler from '../utils/asyncHandler.js';
+import { isObjectId } from '../middlewares/validateObjectId.js';
 
 // POST /api/boards/:boardId/columns/:columnId/tickets
-// El Parent Check (tablero y columna) ya lo hicieron loadBoard y loadColumn
-exports.createTicket = asyncHandler(async (req, res) => {
+// El Parent Check (tablero y columna) ya lo hicieron parentCheck('board') y parentCheck('column')
+export const createTicket = asyncHandler(async (req, res) => {
   const { title, description } = req.body || {};
   const ticket = await Ticket.create({ title, description, column: req.column._id });
   res.status(201).json(ticket);
@@ -18,7 +18,7 @@ const ALLOWED_FIELDS = ['title', 'description', 'column'];
 // Actualiza el contenido (title, description) y/o mueve el ticket (column = id destino).
 // Es IDEMPOTENTE: el body describe el estado final deseado (no "sumar" ni "agregar"),
 // y se aplica con un único $set atómico. Repetir la misma petición deja el mismo estado.
-exports.updateTicket = asyncHandler(async (req, res) => {
+export const updateTicket = asyncHandler(async (req, res) => {
   const body = req.body || {};
 
   const updates = {};
