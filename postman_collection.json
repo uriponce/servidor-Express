@@ -52,9 +52,7 @@
             "value": "application/json"
           }
         ],
-        "url": {
-          "raw": "{{baseUrl}}/api/boards"
-        },
+        "url": "{{baseUrl}}/api/boards",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"title\": \"Proyecto Web\",\n  \"description\": \"Sprint 1\"\n}",
@@ -87,9 +85,7 @@
             "value": "application/json"
           }
         ],
-        "url": {
-          "raw": "{{baseUrl}}/api/boards"
-        },
+        "url": "{{baseUrl}}/api/boards",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"description\": \"sin título\"\n}",
@@ -117,9 +113,7 @@
       "request": {
         "method": "GET",
         "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/boards/{{boardId}}"
-        }
+        "url": "{{baseUrl}}/api/boards/{{boardId}}"
       }
     },
     {
@@ -138,9 +132,7 @@
       "request": {
         "method": "GET",
         "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/boards/123"
-        }
+        "url": "{{baseUrl}}/api/boards/123"
       }
     },
     {
@@ -159,9 +151,7 @@
       "request": {
         "method": "GET",
         "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/boards/000000000000000000000000"
-        }
+        "url": "{{baseUrl}}/api/boards/000000000000000000000000"
       }
     },
     {
@@ -186,9 +176,7 @@
             "value": "application/json"
           }
         ],
-        "url": {
-          "raw": "{{baseUrl}}/api/boards/{{boardId}}/columns"
-        },
+        "url": "{{baseUrl}}/api/boards/{{boardId}}/columns",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"title\": \"Qué hacer\"\n}",
@@ -222,9 +210,7 @@
             "value": "application/json"
           }
         ],
-        "url": {
-          "raw": "{{baseUrl}}/api/boards/{{boardId}}/columns"
-        },
+        "url": "{{baseUrl}}/api/boards/{{boardId}}/columns",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"title\": \"Haciendo\"\n}",
@@ -257,9 +243,7 @@
             "value": "application/json"
           }
         ],
-        "url": {
-          "raw": "{{baseUrl}}/api/boards/000000000000000000000000/columns"
-        },
+        "url": "{{baseUrl}}/api/boards/000000000000000000000000/columns",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"title\": \"X\"\n}",
@@ -292,9 +276,7 @@
             "value": "application/json"
           }
         ],
-        "url": {
-          "raw": "{{baseUrl}}/api/boards/{{boardId}}/columns"
-        },
+        "url": "{{baseUrl}}/api/boards/{{boardId}}/columns",
         "body": {
           "mode": "raw",
           "raw": "{}",
@@ -328,9 +310,7 @@
             "value": "application/json"
           }
         ],
-        "url": {
-          "raw": "{{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets"
-        },
+        "url": "{{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"title\": \"Diseñar login\",\n  \"description\": \"Wireframes\"\n}",
@@ -363,9 +343,7 @@
             "value": "application/json"
           }
         ],
-        "url": {
-          "raw": "{{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets"
-        },
+        "url": "{{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"description\": \"sin título\"\n}",
@@ -398,9 +376,7 @@
             "value": "application/json"
           }
         ],
-        "url": {
-          "raw": "{{baseUrl}}/api/boards/{{boardId}}/columns/000000000000000000000000/tickets"
-        },
+        "url": "{{baseUrl}}/api/boards/{{boardId}}/columns/000000000000000000000000/tickets",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"title\": \"X\"\n}",
@@ -433,9 +409,7 @@
             "value": "application/json"
           }
         ],
-        "url": {
-          "raw": "{{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets/{{ticketId}}"
-        },
+        "url": "{{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets/{{ticketId}}",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"title\": \"Diseñar pantalla de login\"\n}",
@@ -468,9 +442,7 @@
             "value": "application/json"
           }
         ],
-        "url": {
-          "raw": "{{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets/{{ticketId}}"
-        },
+        "url": "{{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets/{{ticketId}}",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"column\": \"{{columnId2}}\"\n}",
@@ -503,9 +475,7 @@
             "value": "application/json"
           }
         ],
-        "url": {
-          "raw": "{{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets/{{ticketId}}"
-        },
+        "url": "{{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets/{{ticketId}}",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"column\": \"{{columnId2}}\"\n}",
@@ -538,9 +508,7 @@
             "value": "application/json"
           }
         ],
-        "url": {
-          "raw": "{{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets/{{ticketId}}"
-        },
+        "url": "{{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets/{{ticketId}}",
         "body": {
           "mode": "raw",
           "raw": "{}",
@@ -573,9 +541,7 @@
             "value": "application/json"
           }
         ],
-        "url": {
-          "raw": "{{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets/{{ticketId}}"
-        },
+        "url": "{{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets/{{ticketId}}",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"title\": \"\"\n}",
@@ -609,9 +575,7 @@
             "value": "application/json"
           }
         ],
-        "url": {
-          "raw": "{{baseUrl}}/api/boards"
-        },
+        "url": "{{baseUrl}}/api/boards",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"title\": \"Otro tablero\"\n}",
@@ -644,9 +608,7 @@
             "value": "application/json"
           }
         ],
-        "url": {
-          "raw": "{{baseUrl}}/api/boards/{{boardId2}}/columns/{{columnId}}/tickets"
-        },
+        "url": "{{baseUrl}}/api/boards/{{boardId2}}/columns/{{columnId}}/tickets",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"title\": \"X\"\n}",
@@ -674,9 +636,7 @@
       "request": {
         "method": "DELETE",
         "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId2}}"
-        }
+        "url": "{{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId2}}"
       }
     },
     {
@@ -695,9 +655,7 @@
       "request": {
         "method": "GET",
         "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/boards/{{boardId}}"
-        }
+        "url": "{{baseUrl}}/api/boards/{{boardId}}"
       }
     }
   ]
