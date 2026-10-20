@@ -5,12 +5,12 @@
 ###
 ###  FLUJO DE USO:
 ###  1. Corre el servidor:  npm run dev
-###  2. Ejecutá cada request en orden con "Send Request"
-###  3. Copiá el _id de la respuesta y pegalo en la variable
-###     correspondiente (@boardId, @columnId, @ticketId)
+###  2. Registrá o iniciá sesión, copiá el token de la respuesta en @token
+###  3. Ejecutá las requests protegidas y copiá los _id devueltos
 ### ============================================================
 
 @baseUrl = http://localhost:3000
+@token = PEGAR_JWT_AQUI
 @boardId = PEGAR_ID_AQUI
 @columnId = PEGAR_ID_AQUI
 @columnId2 = PEGAR_ID_AQUI
@@ -24,6 +24,27 @@
 ### [OK] Verificar que el servidor responde
 GET {{baseUrl}}/health
 
+### [201] Registrar usuario (ejecutar una vez; para siguientes pruebas usar login)
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Kanban Test",
+  "email": "kanban-test@example.com",
+  "password": "test1234"
+}
+
+###
+
+### [200] Iniciar sesión → copiar token a @token
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "kanban-test@example.com",
+  "password": "test1234"
+}
+
 
 # ─────────────────────────────────────────────
 #  FASE 1 — BOARDS
@@ -31,6 +52,7 @@ GET {{baseUrl}}/health
 
 ### [201] Crear tablero válido → copiar _id a @boardId
 POST {{baseUrl}}/api/boards
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -42,6 +64,7 @@ Content-Type: application/json
 
 ### [400] Crear tablero sin título → ValidationError
 POST {{baseUrl}}/api/boards
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -52,16 +75,19 @@ Content-Type: application/json
 
 ### [200] Obtener tablero con columnas populadas
 GET {{baseUrl}}/api/boards/{{boardId}}
+Authorization: Bearer {{token}}
 
 ###
 
 ### [400] Obtener tablero con ID mal formado (< 24 hex)
 GET {{baseUrl}}/api/boards/123abc
+Authorization: Bearer {{token}}
 
 ###
 
 ### [404] Obtener tablero con ID válido pero inexistente
 GET {{baseUrl}}/api/boards/000000000000000000000000
+Authorization: Bearer {{token}}
 
 
 # ─────────────────────────────────────────────
@@ -70,6 +96,7 @@ GET {{baseUrl}}/api/boards/000000000000000000000000
 
 ### [201] Crear columna "Por hacer" → copiar _id a @columnId
 POST {{baseUrl}}/api/boards/{{boardId}}/columns
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -80,6 +107,7 @@ Content-Type: application/json
 
 ### [201] Crear columna "En progreso" → copiar _id a @columnId2
 POST {{baseUrl}}/api/boards/{{boardId}}/columns
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -90,6 +118,7 @@ Content-Type: application/json
 
 ### [400] Crear columna sin título
 POST {{baseUrl}}/api/boards/{{boardId}}/columns
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {}
@@ -98,6 +127,7 @@ Content-Type: application/json
 
 ### [404] Crear columna en tablero inexistente
 POST {{baseUrl}}/api/boards/000000000000000000000000/columns
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -108,6 +138,7 @@ Content-Type: application/json
 
 ### [200] Obtener tablero → debe mostrar las columnas populadas
 GET {{baseUrl}}/api/boards/{{boardId}}
+Authorization: Bearer {{token}}
 
 
 # ─────────────────────────────────────────────
@@ -116,6 +147,7 @@ GET {{baseUrl}}/api/boards/{{boardId}}
 
 ### [201] Crear ticket → copiar _id a @ticketId
 POST {{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -127,6 +159,7 @@ Content-Type: application/json
 
 ### [201] Crear segundo ticket
 POST {{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -137,6 +170,7 @@ Content-Type: application/json
 
 ### [400] Crear ticket sin título
 POST {{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -147,6 +181,7 @@ Content-Type: application/json
 
 ### [404] Crear ticket en columna inexistente
 POST {{baseUrl}}/api/boards/{{boardId}}/columns/000000000000000000000000/tickets
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -160,6 +195,7 @@ Content-Type: application/json
 
 ### [200] Actualizar título y descripción
 PATCH {{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets/{{ticketId}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -169,8 +205,9 @@ Content-Type: application/json
 
 ###
 
-### [200] Mover ticket a columna2 (targetColumnId → campo "column")
+### [200] Mover ticket a columna2 (campo "column")
 PATCH {{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets/{{ticketId}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -181,6 +218,7 @@ Content-Type: application/json
 
 ### [200] Idempotencia: repetir el mismo PATCH → mismo resultado
 PATCH {{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets/{{ticketId}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -191,6 +229,7 @@ Content-Type: application/json
 
 ### [400] PATCH sin campos válidos
 PATCH {{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets/{{ticketId}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {}
@@ -199,6 +238,7 @@ Content-Type: application/json
 
 ### [400] Mover ticket a columna de OTRO tablero
 PATCH {{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets/{{ticketId}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -209,6 +249,7 @@ Content-Type: application/json
 
 ### [400] Ticket ID mal formado
 PATCH {{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}/tickets/malformado
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -222,16 +263,19 @@ Content-Type: application/json
 
 ### [204] Eliminar columna → sus tickets desaparecen en cascada
 DELETE {{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}
+Authorization: Bearer {{token}}
 
 ###
 
 ### [404] Eliminar columna ya borrada (o inexistente)
 DELETE {{baseUrl}}/api/boards/{{boardId}}/columns/{{columnId}}
+Authorization: Bearer {{token}}
 
 ###
 
 ### [400] Eliminar columna con ID inválido
 DELETE {{baseUrl}}/api/boards/{{boardId}}/columns/xyz
+Authorization: Bearer {{token}}
 
 ###
 

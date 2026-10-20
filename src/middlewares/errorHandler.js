@@ -27,6 +27,10 @@ export function errorHandler(err, req, res, next) {
     return res.status(400).json({ error: `Valor inválido para ${err.path}` });
   }
 
+  if (err.code === 11000) {
+    return res.status(409).json({ error: 'Ya existe una cuenta con ese email' });
+  }
+
   console.error(err);
   res.status(500).json({ error: 'Error interno del servidor' });
 }

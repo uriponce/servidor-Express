@@ -1,13 +1,15 @@
 import { Router } from 'express';
-import { createBoard, getBoard } from '../controllers/boardController.js';
+import { createBoard, deleteBoard, getBoard, listBoards } from '../controllers/boardController.js';
 import { validateObjectId } from '../middlewares/validateObjectId.js';
 import { parentCheck } from '../middlewares/parentCheck.js';
 import columnRoutes from './columnRoutes.js';
 
 const router = Router();
 
+router.get('/', listBoards);
 router.post('/', createBoard);
 router.get('/:boardId', validateObjectId('boardId'), parentCheck('board'), getBoard);
+router.delete('/:boardId', validateObjectId('boardId'), parentCheck('board'), deleteBoard);
 
 // Ruta anidada: todo lo de columnas pasa primero por validar + verificar el tablero
 router.use('/:boardId/columns', validateObjectId('boardId'), parentCheck('board'), columnRoutes);

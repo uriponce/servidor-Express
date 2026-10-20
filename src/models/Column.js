@@ -16,8 +16,18 @@ const columnSchema = new mongoose.Schema(
       index: true,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
+
+columnSchema.virtual('tickets', {
+  ref: 'Ticket',
+  localField: '_id',
+  foreignField: 'column',
+});
 
 // Cascada: al borrar UNA columna (documento), se borran sus tickets
 columnSchema.pre('deleteOne', { document: true, query: false }, async function () {

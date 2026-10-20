@@ -13,6 +13,12 @@ const boardSchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: [true, 'El tablero debe pertenecer a un usuario'],
+      index: true,
+    },
   },
   {
     timestamps: true,

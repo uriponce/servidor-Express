@@ -15,7 +15,7 @@ export function parentCheck(resource) {
   if (resource === 'board') {
     return asyncHandler(async (req, res, next) => {
       // Parent Check del tablero: si no existe, aborta con 404
-      const board = await Board.findById(req.params.boardId);
+      const board = await Board.findOne({ _id: req.params.boardId, owner: req.user._id });
       if (!board) throw new HttpError(404, 'Tablero no encontrado');
       req.board = board;
       next();

@@ -68,3 +68,13 @@ export const updateTicket = asyncHandler(async (req, res) => {
 
   res.status(200).json(ticket);
 });
+
+// DELETE /api/boards/:boardId/columns/:columnId/tickets/:ticketId
+export const deleteTicket = asyncHandler(async (req, res) => {
+  const ticket = await Ticket.findOneAndDelete({
+    _id: req.params.ticketId,
+    column: req.column._id,
+  });
+  if (!ticket) throw new HttpError(404, 'Ticket no encontrado en esta columna');
+  res.status(204).send();
+});

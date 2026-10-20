@@ -11,30 +11,57 @@ y respuestas HTTP semánticas.
 ## Instalación y uso
 ```bash
 npm install
-cp .env.example .env      # completá MONGODB_URI
+```
+
+Crear `.env` desde `.env.example` y completar las variables antes de iniciar:
+
+```env
+PORT=3000
+MONGODB_URI=mongodb://127.0.0.1:27017/kanban
+JWT_SECRET=
+CORS_ORIGIN=http://localhost:5173
+```
+
+Iniciar el servidor:
+
+```bash
 npm run dev               # desarrollo (nodemon)
 npm start                 # producción
 ```
 
-Variables de entorno (`.env.example`):
+Generá un valor aleatorio de al menos 32 caracteres para `JWT_SECRET` (por ejemplo, con
+`node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`). No reutilices el valor del
+ejemplo ni lo publiques. Para varios orígenes permitidos, `CORS_ORIGIN` acepta una lista separada por comas.
+En producción debe contener el origen exacto de `kanban-web`.
 
 | Variable | Descripción | Ejemplo |
 |---|---|---|
 | `PORT` | Puerto del servidor | `3000` |
 | `MONGODB_URI` | Cadena de conexión a MongoDB | `mongodb://127.0.0.1:27017/kanban` |
+| `JWT_SECRET` | Secreto de firma JWT (mínimo 32 caracteres) | secreto aleatorio |
+| `CORS_ORIGIN` | Orígenes permitidos, separados por comas | `http://localhost:5173` |
 
 ## Endpoints
 
 | Método | Endpoint | Acción | Éxito |
 |---|---|---|---|
+| POST | `/api/auth/register` | Registra y autentica un usuario | 201 `{ token, user }` |
+| POST | `/api/auth/login` | Inicia sesión | 200 `{ token, user }` |
+| GET | `/api/auth/me` | Devuelve el usuario autenticado | 200 `{ user }` |
+| GET | `/api/boards` | Lista los tableros del usuario | 200 |
 | POST | `/api/boards` | Crea un tablero | 201 |
 | GET | `/api/boards/:boardId` | Tablero con sus columnas pobladas | 200 |
+| DELETE | `/api/boards/:boardId` | Elimina un tablero y sus datos | 204 |
 | POST | `/api/boards/:boardId/columns` | Agrega una columna | 201 |
 | DELETE | `/api/boards/:boardId/columns/:columnId` | Elimina una columna (y sus tickets) | 204 |
 | POST | `/api/boards/:boardId/columns/:columnId/tickets` | Crea un ticket | 201 |
 | PATCH | `/api/boards/:boardId/columns/:columnId/tickets/:ticketId` | Mueve un ticket o actualiza su contenido | 200 |
+| DELETE | `/api/boards/:boardId/columns/:columnId/tickets/:ticketId` | Elimina un ticket | 204 |
 
-Utilitario: `GET /health` → `200 { "status": "ok" }`.
+Solo el registro, login y `GET /health` son públicos. `GET /api/auth/me` y las rutas de tableros requieren
+`Authorization: Bearer <token>`. Los tableros quedan aislados por usuario.
+Los tableros creados con versiones anteriores de la API, antes de incorporar propietarios, no se listan para
+ninguna cuenta nueva; asignales un propietario de forma deliberada en MongoDB o recrealos.
 
 ### Ejemplos de body
 ```json
@@ -59,6 +86,8 @@ Utilitario: `GET /health` → `200 { "status": "ok" }`.
 - **Parent Check**: antes de crear una columna se verifica que el tablero exista; antes de crear un ticket, que
   exista la columna. Si no, `404 Not Found` (nunca un 500).
 - **Aislamiento de rutas**: si la columna existe pero pertenece a otro tablero, la petición se rechaza con `404`.
+- **Aislamiento por usuario**: todas las operaciones de tableros solo consultan tableros cuyo `owner` coincide
+  con el usuario autenticado.
 - **Códigos HTTP**:
   - `400` payload inválido (ej. falta el título) o ID que no tiene 24 caracteres hexadecimales.
   - `404` ID con formato válido que no existe.
@@ -72,10 +101,10 @@ Utilitario: `GET /health` → `200 { "status": "ok" }`.
 ```
 src/
 ├── config/        conexión a la base de datos
-├── models/        Board.js, Column.js, Ticket.js
-├── controllers/   lógica de cada endpoint
-├── routes/        rutas anidadas (boards → columns → tickets)
-├── middlewares/   validateObjectId, loadBoard, loadColumn, errorHandler
+├── models/        User.js, Board.js, Column.js, Ticket.js
+├── controllers/   autenticación y lógica de tableros/columnas/tickets
+├── routes/        authRoutes y rutas anidadas (boards → columns → tickets)
+├── middlewares/   requireAuth, validateObjectId, parentCheck, errorHandler
 ├── utils/         HttpError, asyncHandler
 ├── app.js         configuración de Express
 └── server.js      arranque del servidor
@@ -85,17 +114,17 @@ AGENTS.md                                 reglas del proyecto para agentes de IA
 ```
 
 ## Pruebas
-Importá `docs/kanban-api.postman_collection.json` en Postman o en Thunder Client (Collections → Import).
-Incluye el camino feliz y los casos de error (400, 404, aislamiento entre tableros, reintento idempotente).
-Orden recomendado: ejecutarla de arriba hacia abajo. Si tu herramienta no ejecuta los scripts de la
-colección, copiá a mano los `_id` devueltos en las variables `boardId`, `columnId`, `columnId2`, `ticketId`
-y `boardId2`.
+Importá `docs/kanban-api.postman_collection.json` en Postman (Collections → Import) y ejecutala de arriba
+hacia abajo: la primera solicitud registra una cuenta y guarda el token para las siguientes. Incluye el camino
+feliz y casos de error (400, 404, aislamiento entre tableros, reintento idempotente). En `test.http`, registrá
+o iniciá sesión y copiá el token de la respuesta en `@token` antes de ejecutar las rutas protegidas.
 
 ## Despliegue (sugerido)
-1. Crear un cluster gratuito en MongoDB Atlas y copiar la cadena de conexión.
-2. Crear un Web Service en Render (o similar) apuntando al repositorio:
-   Build Command `npm install`, Start Command `npm start`.
-3. Definir la variable de entorno `MONGODB_URI` en el panel del servicio (`PORT` la define la plataforma).
+1. Crear un cluster en MongoDB Atlas y copiar la cadena de conexión.
+2. Crear un Web Service Node (por ejemplo, en Render) con directorio raíz `servidor-Express`,
+   Build Command `npm install` y Start Command `npm start`.
+3. Definir `MONGODB_URI`, `JWT_SECRET` (secreto aleatorio de 32+ caracteres) y `CORS_ORIGIN` con el origen
+   desplegado del frontend `kanban-web`. La plataforma define `PORT`.
 
 ## Convención de commits
 Conventional Commits: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`.
